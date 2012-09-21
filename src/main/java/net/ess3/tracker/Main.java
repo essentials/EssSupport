@@ -2,7 +2,10 @@ package net.ess3.tracker;
 
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.auth.AnonymousAuthenticationHandler;
+import com.atlassian.jira.rest.client.domain.BasicIssue;
 import com.atlassian.jira.rest.client.domain.BasicProject;
+import com.atlassian.jira.rest.client.domain.BasicUser;
+import com.atlassian.jira.rest.client.domain.Issue;
 import com.atlassian.jira.rest.client.domain.IssueType;
 import com.atlassian.jira.rest.client.domain.Priority;
 import com.atlassian.jira.rest.client.domain.Project;
@@ -11,7 +14,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +35,8 @@ public class Main extends HttpServlet {
     private static final String url = "https://essentials3.atlassian.net/";
     private static final JiraRestClient client;
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    //
+    private static Map<BasicIssue, Issue> issueCache = new HashMap<BasicIssue, Issue>();
 
     static {
         try {
@@ -39,6 +47,20 @@ public class Main extends HttpServlet {
         } catch (Exception ex) {
             throw new ExceptionInInitializerError(ex);
         }
+    }
+
+    public static List<Issue> getIssues(String state, int page) {
+        List<Issue> ret = new ArrayList<Issue>();
+        for (BasicIssue basic : client.getSearchClient().searchJql("status = open", 20, page, null).getIssues()) {
+            if (!issueCache.containsKey(basic)) {
+                Issue i = client.getIssueClient().getIssue(basic.getKey(), null);
+                ret.add(i);
+                issueCache.put(basic, i);
+            } else {
+                ret.add(issueCache.get(basic));
+            }
+        }
+        return ret;
     }
 
     @Override
