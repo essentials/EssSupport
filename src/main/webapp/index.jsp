@@ -3,7 +3,7 @@
 <div class="hero-unit">
     <h2>Essentials Bug Tracker Lite</h2>
     <p>
-        Welcome to Essentials, Bukkit's number one all purpose plugin! This site is an interface to out JIRA bugtracker found <a href="http://essentials3.atlassian.net/">here</a>
+        Welcome to Essentials, Bukkit's number one all purpose plugin! This site is an interface to our JIRA bug tracker found <a href="http://essentials3.atlassian.net/">here</a>
         and allows for the easy creation and viewing of issues.
         <br>
         You do not need an account to view or comment on issues here, so hop right in and give us some feedback!

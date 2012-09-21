@@ -14,7 +14,13 @@
                 padding-top: 60px;
                 padding-bottom: 40px;
             }
+            .alert {
+                display: none;
+            }
         </style>
+        <!-- Scripts -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
     </head>
 
     <body>
@@ -33,7 +39,7 @@
                         <span class="icon-bar"></span>
                     </a>
                     <!-- Branding -->
-                    <a class="brand" href="#">Essentials Bugtracker Lite</a>
+                    <a class="brand" href="/">Essentials Bug Tracker Lite</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
                             <li><a href="/">Home</a></li>
