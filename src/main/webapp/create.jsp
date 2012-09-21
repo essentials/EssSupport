@@ -54,6 +54,15 @@
             tag.append($("<option>", { value : build, text: build}));
         });
     });
+    // Essentials builds
+    $.getJSON("/versions/essentials", function(data){
+        var tag = $("#plugin-versions");
+        tag.html("");
+        $.each(data.build, function(index, val) {
+            var build = val.number;
+            tag.append($("<option>", { value : build, text: build}));
+        });
+    });
     // Handle form submission
     $("form").submit(function(e) {
         e.preventDefault();

@@ -8,8 +8,16 @@
         <servlet-name>Submit</servlet-name>
         <servlet-class>net.ess3.tracker.Main</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>EssentialsVersions</servlet-name>
+        <servlet-class>net.ess3.tracker.EssentialsVersions</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Submit</servlet-name>
         <url-pattern>/issues/submit</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EssentialsVersions</servlet-name>
+        <url-pattern>/versions/essentials</url-pattern>
     </servlet-mapping>
 </web-app>
