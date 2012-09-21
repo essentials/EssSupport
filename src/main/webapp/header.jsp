@@ -17,7 +17,7 @@
             .alert {
                 display: none;
             }
-            tr {
+            tbody tr {
                 cursor: pointer;
             }
         </style>

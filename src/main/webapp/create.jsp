@@ -46,7 +46,7 @@
 
 <script type="text/javascript">
     // Populate CB builds
-    $.getJSON("ahttp://dl.bukkit.org/api/1.0/downloads/projects/craftbukkit/artifacts/rb/?_accept=application/json-p&callback=?", function(data) {
+    $.getJSON("http://dl.bukkit.org/api/1.0/downloads/projects/craftbukkit/artifacts/rb/?_accept=application/json-p&callback=?", function(data) {
         var tag = $("#craftbukkit-versions");
         tag.html("");
         $.each(data.results, function(index, val) {
