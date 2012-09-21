@@ -3,21 +3,19 @@ package net.ess3.tracker;
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.auth.AnonymousAuthenticationHandler;
 import com.atlassian.jira.rest.client.domain.BasicIssue;
-import com.atlassian.jira.rest.client.domain.BasicProject;
-import com.atlassian.jira.rest.client.domain.BasicUser;
 import com.atlassian.jira.rest.client.domain.Issue;
-import com.atlassian.jira.rest.client.domain.IssueType;
-import com.atlassian.jira.rest.client.domain.Priority;
-import com.atlassian.jira.rest.client.domain.Project;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClient;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -27,48 +25,69 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 public class Main extends HttpServlet {
 
-    public static List<IssueType> issueTypes;
-    public static List<BasicProject> projects;
-    public static List<Priority> priorities;
-    //
-    private static final Project project;
     private static final String url = "https://essentials3.atlassian.net/";
     private static final JiraRestClient client;
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    //
-    private static Map<BasicIssue, Issue> issueCache = new HashMap<BasicIssue, Issue>();
+    private static final ExecutorService pool = Executors.newCachedThreadPool();
+    private static final Comparator<Issue> comp = new Comparator<Issue>() {
+        @Override
+        public int compare(Issue o1, Issue o2) {
+            return o2.getKey().compareTo(o1.getKey());
+        }
+    };
+    private static final Gson gson = new Gson();
 
     static {
         try {
             client = new JerseyJiraRestClient(new URI(url), new AnonymousAuthenticationHandler());
-            project = client.getProjectClient().getProject("ESS", null);
-            issueTypes = (List) project.getIssueTypes();
-            priorities = (List) client.getMetadataClient().getPriorities(null);
         } catch (Exception ex) {
             throw new ExceptionInInitializerError(ex);
         }
     }
 
-    public static List<Issue> getIssues(String state, int page, List<BasicIssue> myIssues) {
+    public static Collection<Issue> getIssues(String state, int page, List<BasicIssue> myIssues) {
         // init return array
-        List<Issue> ret = new ArrayList<Issue>();
+        final Set<Issue> ret = new TreeSet<Issue>(comp);
         // make a query
         String query = state == null ? "" : "status = " + state;
         // do the query
-        Iterable<BasicIssue> issues;
+        List<BasicIssue> issues;
         // if they are reserved issues
         if ("mine".equals(state)) {
             issues = myIssues;
         } else {
             // search for them
-            issues = client.getSearchClient().searchJql(query, 20, page * 20 - 20, null).getIssues();
+            issues = (List) client.getSearchClient().searchJql(query, 20, page * 20 - 20, null).getIssues();
         }
         // null check
-        if (issues != null) {
+        if (issues != null && !issues.isEmpty()) {
+            // store count
+            final int count = issues.size();
+            final AtomicInteger done = new AtomicInteger();
             // loop through them
-            for (BasicIssue basic : issues) {
-                // add it to the list
-                ret.add(client.getIssueClient().getIssue(basic.getKey(), null));
+            for (final BasicIssue basic : issues) {
+                // start a new service
+                pool.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            ret.add(client.getIssueClient().getIssue(basic.getKey(), null));
+                            if (done.incrementAndGet() == count) {
+                                synchronized (ret) {
+                                    ret.notify();
+                                }
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+            }
+            try {
+                synchronized (ret) {
+                    ret.wait();
+                }
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
             }
         }
         // return
