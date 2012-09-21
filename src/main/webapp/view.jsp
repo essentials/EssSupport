@@ -1,6 +1,16 @@
+<%@page import="java.util.List"%>
 <%@page import="com.atlassian.jira.rest.client.domain.Issue"%>
 <%@page import="net.ess3.tracker.Main"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%
+    String p = request.getParameter("page");
+    if (p == null) {
+        p = "1";
+    }
+    int pageNum = Integer.parseInt(p);
+    String state = request.getParameter("state");
+    boolean hasNext = pageNum - 1 > 0;
+%>
 <%@include file="header.jsp" %>
 
 <table class="table table-hover table-bordered">
@@ -19,8 +29,8 @@
         </tr>
     </thead>
     <tbody>
-        <% for (Issue i : Main.getIssues("", 1)) {%>
-        <tr>
+        <% for (Issue i : Main.getIssues(state, pageNum, (List) request.getSession().getAttribute("issues"))) {%>
+        <tr data-url="<%="https://essentials3.atlassian.net/browse/" + i.getKey()%>">
             <td><%= i.getIssueType().getName()%></td>
             <td><%= i.getKey()%></td>
             <td><%= i.getSummary()%></td>
@@ -36,4 +46,16 @@
     </tbody>
 </table>
 
+<div class="pagination">
+    <ul>
+        <li <%=(!hasNext) ? " class='disabled'" : ""%>><a <%=(hasNext) ? "href='?state=" + state + "&page=" + (pageNum - 1) + "'" : ""%>>Prev</a></li>
+        <li><a <%="href='?state=" + state + "&page=" + (pageNum + 1) + "'"%>>Next</a></li>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $("tr").click(function () {
+        window.open($(this).attr("data-url"));
+    });
+</script>
 <%@include file="footer.jsp" %>

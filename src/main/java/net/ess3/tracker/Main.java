@@ -49,17 +49,29 @@ public class Main extends HttpServlet {
         }
     }
 
-    public static List<Issue> getIssues(String state, int page) {
+    public static List<Issue> getIssues(String state, int page, List<BasicIssue> myIssues) {
+        // init return array
         List<Issue> ret = new ArrayList<Issue>();
-        for (BasicIssue basic : client.getSearchClient().searchJql("status = open", 20, page, null).getIssues()) {
-            if (!issueCache.containsKey(basic)) {
-                Issue i = client.getIssueClient().getIssue(basic.getKey(), null);
-                ret.add(i);
-                issueCache.put(basic, i);
-            } else {
-                ret.add(issueCache.get(basic));
+        // make a query
+        String query = state == null ? "" : "status = " + state;
+        // do the query
+        Iterable<BasicIssue> issues;
+        // if they are reserved issues
+        if ("mine".equals(state)) {
+            issues = myIssues;
+        } else {
+            // search for them
+            issues = client.getSearchClient().searchJql(query, 20, page * 20 - 20, null).getIssues();
+        }
+        // null check
+        if (issues != null) {
+            // loop through them
+            for (BasicIssue basic : issues) {
+                // add it to the list
+                ret.add(client.getIssueClient().getIssue(basic.getKey(), null));
             }
         }
+        // return
         return ret;
     }
 
