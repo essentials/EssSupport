@@ -38,7 +38,7 @@
             <td><%= i.getReporter() == null ? "Anonymous" : i.getReporter().getDisplayName()%></td>
             <td><%= i.getPriority().getName()%></td>
             <td><%= i.getStatus().getName()%></td>
-            <td><%= i.getResolution().getName()%></td>
+            <td><%= i.getResolution() == null ? "Unresolved" : i.getResolution().getName()%></td>
             <td><%= i.getCreationDate().toString("dd/MM/YY")%></td>
             <td><%= i.getUpdateDate().toString("dd/MM/YY")%></td>
         </tr>

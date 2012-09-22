@@ -4,13 +4,19 @@ import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.auth.AnonymousAuthenticationHandler;
 import com.atlassian.jira.rest.client.domain.BasicIssue;
 import com.atlassian.jira.rest.client.domain.Issue;
+import com.atlassian.jira.rest.client.domain.IssueFieldId;
+import com.atlassian.jira.rest.client.domain.input.ComplexIssueInputFieldValue;
+import com.atlassian.jira.rest.client.domain.input.FieldInput;
+import com.atlassian.jira.rest.client.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClient;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
@@ -27,6 +33,8 @@ public class Main extends HttpServlet {
 
     private static final String url = "https://essentials3.atlassian.net/";
     private static final JiraRestClient client;
+    private static final ComplexIssueInputFieldValue project = new ComplexIssueInputFieldValue((Map) Collections.singletonMap("key", "ESS"));
+    private static final ComplexIssueInputFieldValue type = new ComplexIssueInputFieldValue((Map) Collections.singletonMap("name", "Story"));
     private static final ExecutorService pool = Executors.newCachedThreadPool();
     private static final Comparator<Issue> comp = new Comparator<Issue>() {
         @Override
@@ -96,7 +104,26 @@ public class Main extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp);
+        // add stuff
+        String summary = req.getParameter("summary");
+        String cbVersion = req.getParameter("cb-version");
+        String essVersion = req.getParameter("ess-version");
+        String description = req.getParameter("description");
+        // construct the issue
+        FieldInput projectF = new FieldInput(IssueFieldId.PROJECT_FIELD, project);
+        FieldInput typeF = new FieldInput(IssueFieldId.ISSUE_TYPE_FIELD, type);
+        FieldInput summaryF = new FieldInput(IssueFieldId.SUMMARY_FIELD, summary);
+        FieldInput descriptionF = new FieldInput(IssueFieldId.DESCRIPTION_FIELD, description);
+        FieldInput environmentF = new FieldInput("environment", "Essentials: " + essVersion + " CraftBukkit: " + cbVersion);
+        IssueInput issue = IssueInput.createWithFields(projectF, typeF, summaryF, descriptionF, environmentF);
+        // submit it
+        BasicIssue created = client.getIssueClient().createIssue(issue, null);
+        // plain text
+        resp.setContentType("text/plain");
+        // write url
+        resp.getWriter().write("https://essentials3.atlassian.net/browse/");
+        // write issue
+        resp.getWriter().write(created.getKey());
     }
 
     public static void main(String[] args) throws Exception {

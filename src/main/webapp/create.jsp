@@ -1,13 +1,15 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@include file="header.jsp" %>
+<!-- Forms plugin -->
+<script src="http://malsup.github.com/jquery.form.js"></script>
 <div class="row span12">
     <div class="well">
         <h1>Create an issue</h1>
-        <p>Use this panel to vote for this server on several voting sites.<br>Then press Submit to claim your reward!</p>
+        <p>Use this page to submit an issue so we can look into it.<br>Please include a short summary and then a full description telling us everything we need to know.</p>
     </div>
     <hr>
     <div class="alert">cats</div>
-    <form class="form-horizontal">
+    <form class="form-horizontal" action="/issues/submit" method="POST" id="create">
         <div class="control-group">
             <label class="control-label">Summary</label>
             <div class="controls">
@@ -45,6 +47,8 @@
 </div>
 
 <script type="text/javascript">
+    // enable buttons
+    $("button").attr("disabled", false);
     // Populate CB builds
     $.getJSON("http://dl.bukkit.org/api/1.0/downloads/projects/craftbukkit/artifacts/rb/?_accept=application/json-p&callback=?", function(data) {
         var tag = $("#craftbukkit-versions");
@@ -78,11 +82,10 @@
             return;
         }
         // submit the form
+        $("button").attr("disabled", true);
         setAlert("Submitting your issue. Please be patient, the page will automatically refresh.");
-        $.get("/vote/" + $("#username").val(), function(r) {
-            alertBox.addClass(r.style);
-            alertBox.html(r.message);
-            alertBox.slideDown();
+        $(this).ajaxSubmit(function(r) {
+            window.location = r;
         });
     });
     var alertBox = $(".alert");
