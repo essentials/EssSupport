@@ -12,6 +12,7 @@ import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClient;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -124,6 +125,13 @@ public class Main extends HttpServlet {
         resp.getWriter().write("https://essentials3.atlassian.net/browse/");
         // write issue
         resp.getWriter().write(created.getKey());
+        // set cookie
+        List<BasicIssue> myIssues = (List) req.getAttribute("issues");
+        if (myIssues == null) {
+            myIssues = new ArrayList<BasicIssue>();
+        }
+        myIssues.add(created);
+        req.setAttribute("issues", myIssues);
     }
 
     public static void main(String[] args) throws Exception {
