@@ -126,12 +126,12 @@ public class Main extends HttpServlet {
         // write issue
         resp.getWriter().write(created.getKey());
         // set cookie
-        List<BasicIssue> myIssues = (List) req.getAttribute("issues");
+        List<BasicIssue> myIssues = (List) req.getSession().getAttribute("issues");
         if (myIssues == null) {
             myIssues = new ArrayList<BasicIssue>();
         }
         myIssues.add(created);
-        req.setAttribute("issues", myIssues);
+        req.getSession().setAttribute("issues", myIssues);
     }
 
     public static void main(String[] args) throws Exception {
