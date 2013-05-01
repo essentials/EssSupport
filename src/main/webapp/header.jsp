@@ -33,7 +33,7 @@
             <div class="navbar-inner">
                 <div class="container">
                     <!-- Fork me on GitHub -->
-                    <a href="https://github.com/you">
+                    <a href="https://github.com/essentials/EssSupport">
                         <img style="position: absolute; top: 0; right: 0; border: 0;" src="//s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub">
                     </a>
                     <!-- Branding -->
