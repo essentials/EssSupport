@@ -50,7 +50,7 @@
     // enable buttons
     $("button").attr("disabled", false);
     // Populate CB builds
-    $.getJSON("http://dl.bukkit.org/api/1.0/downloads/projects/craftbukkit/artifacts/rb/?_accept=application/json-p&callback=?", function(data) {
+    $.getJSON("http://dl.bukkit.org/api/1.0/downloads/projects/craftbukkit/artifacts/beta/?_accept=application/json-p&callback=?", function(data) {
         var tag = $("#craftbukkit-versions");
         tag.html("");
         $.each(data.results, function(index, val) {
