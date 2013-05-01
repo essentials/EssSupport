@@ -76,7 +76,7 @@
                     <programs>
                         <program>
                             <name>webapp</name>
-                            <mainClass>net.ess3.tracket.Main</mainClass>
+                            <mainClass>net.ess3.tracker.Main</mainClass>
                         </program>
                     </programs>
                 </configuration>
