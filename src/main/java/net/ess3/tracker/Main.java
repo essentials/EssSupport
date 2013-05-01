@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +55,7 @@ public class Main extends HttpServlet {
 
     public static Collection<Issue> getIssues(String state, int page, List<BasicIssue> myIssues) {
         // init return array
-        final Set<Issue> ret = new TreeSet<Issue>(comp);
+        final Set<Issue> ret = new TreeSet<>(comp);
         // make a query
         String query = state == null ? "" : "status = " + state;
         // do the query
@@ -71,7 +71,7 @@ public class Main extends HttpServlet {
         if (issues != null && !issues.isEmpty()) {
             // store count
             final int count = issues.size();
-            final AtomicInteger done = new AtomicInteger();
+            final CountDownLatch done = new CountDownLatch(count);
             // loop through them
             for (final BasicIssue basic : issues) {
                 // start a new service
@@ -80,21 +80,16 @@ public class Main extends HttpServlet {
                     public void run() {
                         try {
                             ret.add(client.getIssueClient().getIssue(basic.getKey(), null));
-                            if (done.incrementAndGet() == count) {
-                                synchronized (ret) {
-                                    ret.notify();
-                                }
-                            }
+                            done.countDown();
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                     }
                 });
             }
+
             try {
-                synchronized (ret) {
-                    ret.wait();
-                }
+                done.await();
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
@@ -126,9 +121,9 @@ public class Main extends HttpServlet {
         // write issue
         resp.getWriter().write(created.getKey());
         // set cookie
-        List<BasicIssue> myIssues = (List) req.getSession().getAttribute("issues");
+        List<BasicIssue> myIssues = (List<BasicIssue>) req.getSession().getAttribute("issues");
         if (myIssues == null) {
-            myIssues = new ArrayList<BasicIssue>();
+            myIssues = new ArrayList<>();
         }
         myIssues.add(created);
         req.getSession().setAttribute("issues", myIssues);
