@@ -1,0 +1,68 @@
+extend main
+block content
+    div.row.span12
+        div.well
+            h1 Create an issue
+            p
+                | Use this page to submit an issue so we can look into it.
+                br Please include a short summary and then a full description telling us everything we need to know.
+        hr
+        div.alert
+
+        form(class="form-horizontal", action="/issues/submit", method="POST", id="create")
+            div.control-group
+                label.control-label Summary
+                div.controls
+                    input.input-xxlarge(type="text", placeholder="Brief summary of your issue", id="summary", name="summary")
+            div.control-group
+                label.control-label CraftBukkit version
+                div.controls
+                    select(name="server-version")
+                        for version in serverVersions
+                            option #{version}
+            div.control-group
+                label.control-label Essentials version
+                div.controls
+                    select(name="ess-version")
+                        for version in essVersions
+                            option #{version}
+            div.control-group
+                label.control-label Description
+                div.controls
+                    textarea.input-xxlarge(name="description", id="description", rows="5", placeholder="Please provide an in depth description on how to reproduce this issue / why you want this feature.")
+            div.control-group
+                div.controls
+                    button.btn(type="submit") Create Issue
+
+    script(type="text/javascript").
+        // Handle form submission
+        $("form").submit(function(e) {
+            e.preventDefault();
+            // check for validation
+            // summary
+            if ($("#summary").val() == ""){
+                setAlert("Please enter a summary of your issue", "alert-error");
+                return;
+            }
+            // description
+            if ($("#description").val() == ""){
+                setAlert("Please provide a brief description of your issue", "alert-error");
+                return;
+            }
+            // submit the form
+            $("button").attr("disabled", true);
+            setAlert("Submitting your issue. Please be patient, the page will automatically refresh.");
+            $(this).ajaxSubmit(function(r) {
+                window.location = r;
+            });
+        });
+        var alertBox = $(".alert");
+        function setAlert(text, clazz) {
+            alertBox.removeClass();
+            alertBox.addClass("alert");
+            if (clazz != null){
+                alertBox.addClass(clazz);
+            }
+            alertBox.html(text);
+            alertBox.slideDown();
+        }

@@ -8,7 +8,6 @@ import com.atlassian.jira.rest.client.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.atlassian.util.concurrent.Promise;
-import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 public class Main extends HttpServlet {
 
@@ -34,7 +32,6 @@ public class Main extends HttpServlet {
             return o2.getKey().compareTo(o1.getKey());
         }
     };
-    private static final Gson gson = new Gson();
 
     static {
         try {
@@ -106,9 +103,7 @@ public class Main extends HttpServlet {
 
     public static void main(String[] args) throws Exception {
         Server server = new Server(8888);
-        WebAppContext context = new WebAppContext();
-        context.setResourceBase("src/main/webapp");
-        server.setHandler(context);
+        server.setHandler(new ServerHandler());
         server.start();
     }
 }

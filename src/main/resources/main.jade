@@ -1,0 +1,41 @@
+!!!5
+html
+    head
+        title Essentials Bug Tracker Lite
+        meta(charset="utf-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        link(href="//netdna.bootstrapcdn.com/bootswatch/2.1.0/united/bootstrap.min.css", rel="stylesheet")
+        style(type="text/css").
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+            .alert {
+                display: none;
+            }
+            tbody tr {
+                cursor: pointer;
+            }
+        link(href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-responsive.min.css", rel="stylesheet")
+        script(src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js")
+        script(src="http://malsup.github.com/jquery.form.js")
+    body
+        div.navbar.navbar-inverse.navbar-fixed-top
+            div.navbar-inner
+                div.container
+                    a(href="https://github.com/essentials/EssSupport")
+                        img(style="position: absolute; top: 0; right: 0; border: 0;", src="//s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png", alt="Fork me on GitHub")
+                    a.brand(href="/") Essentials Bug Tracker Lite
+                    uk.nav
+                        li: a(href="/") Home
+                        li: a(href="/create") Create
+                        li: a(href="/view?state=open") Open
+                        li: a(href="/view?state=closed") Closed
+                        li: a(href="/view?state=mine") My
+        div.container
+            block content
+
+            hr
+            footer
+                div.pull-left: a(href="http://wiki.ess3.net/wiki/Main_Page") &copy; Essentials 2013
+                div.pull-right: a(href="http://www.atlassian.com/software/jira/overview") Powered by Atlassian JIRA
