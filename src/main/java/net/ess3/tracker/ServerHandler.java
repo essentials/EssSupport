@@ -20,6 +20,7 @@ public class ServerHandler extends AbstractHandler {
 
     public ServerHandler() {
         jade = new JadeConfiguration();
+        jade.setCaching(false);
         jade.setTemplateLoader(new FileTemplateLoader("src/main/resources/", "UTF-8"));
         jade.setPrettyPrint(true);
 

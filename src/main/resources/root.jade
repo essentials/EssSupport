@@ -1,6 +1,6 @@
 extend main
 block content
-    div.hero-unit
+    div.jumbotron
         h2 Essentials Bug Tracker Lite
         p
             | Welcome to Essentials, Bukkit's number one all purpose plugin! This site is an interface to our JIRA bug tracker found
@@ -10,19 +10,19 @@ block content
             | You do not need an account to view or comment on issues here, so hop right in and give us some feedback!
 
     div.row
-        div.span3
+        div.col-md-3
             h3 Create an Issue
             p Found a bug in Essentials? We would love to know about it!
-            p: a.btn(href="/create") Create an issue &raquo;
-        div.span3
+            p: a.btn.btn-default(href="/create") Create an issue &raquo;
+        div.col-md-3
             h3 View open issues
             p Want to see current issues? This is where they will be.
-            p: a.btn(href="/view?state=open") View open issues &raquo;
-        div.span3
+            p: a.btn.btn-default(href="/view?state=open") View open issues &raquo;
+        div.col-md-3
             h3 View closed issues
             p Want to check closed issues? Here they are.
-            p: a.btn(href="/view?state=closed") View closed issues &raquo;
-        div.span3
+            p: a.btn.btn-default(href="/view?state=closed") View closed issues &raquo;
+        div.col-md-3
             h3 View My Issues
             p Previously submitted a request to us? Track its status here.
-            p: a.btn(href="/view?state=mine") View my issues &raquo;
+            p: a.btn.btn-default(href="/view?state=mine") View my issues &raquo;

@@ -1,38 +1,41 @@
 extend main
 block content
-    div.row.span12
-        div.well
-            h1 Create an issue
-            p
-                | Use this page to submit an issue so we can look into it.
-                br Please include a short summary and then a full description telling us everything we need to know.
-        hr
-        div.alert
-
-        form(class="form-horizontal", action="/issues/submit", method="POST", id="create")
-            div.control-group
-                label.control-label Summary
-                div.controls
-                    input.input-xxlarge(type="text", placeholder="Brief summary of your issue", id="summary", name="summary")
-            div.control-group
-                label.control-label CraftBukkit version
-                div.controls
-                    select(name="server-version")
-                        for version in serverVersions
-                            option #{version}
-            div.control-group
-                label.control-label Essentials version
-                div.controls
-                    select(name="ess-version")
-                        for version in essVersions
-                            option #{version}
-            div.control-group
-                label.control-label Description
-                div.controls
-                    textarea.input-xxlarge(name="description", id="description", rows="5", placeholder="Please provide an in depth description on how to reproduce this issue / why you want this feature.")
-            div.control-group
-                div.controls
-                    button.btn(type="submit") Create Issue
+    div.row
+        div.col-md-12
+            div.well
+                h1 Create an issue
+                p
+                    | Use this page to submit an issue so we can look into it.
+                    br Please include a short summary and then a full description telling us everything we need to know.
+            hr
+    div.row
+        div.col-md-8
+            div.alert
+            form.form-horizontal(action="/issues/submit", method="POST", id="create")
+                fieldset
+                    div.form-group
+                        label.control-label.col-md-3 Summary
+                        div.col-md-9
+                            input.form-control(type="text", placeholder="Brief summary of your issue", id="summary", name="summary")
+                    div.form-group
+                        label.control-label.col-md-3 CraftBukkit version
+                        div.col-md-5
+                            select.form-control(name="server-version")
+                                for version in serverVersions
+                                    option #{version}
+                    div.form-group
+                        label.control-label.col-md-3 Essentials version
+                        div.col-md-5
+                            select.form-control(name="ess-version")
+                                for version in essVersions
+                                    option #{version}
+                    div.form-group
+                        label.control-label.col-md-3 Description
+                        div.col-md-9
+                            textarea.form-control(name="description", id="description", rows="5", placeholder="Please provide an in depth description on how to reproduce this issue / why you want this feature.")
+                    div.form-group
+                        div.col-md-9.col-md-offset-3
+                            button.btn.btn-primary(type="submit") Create Issue
 
     script(type="text/javascript").
         // Handle form submission
