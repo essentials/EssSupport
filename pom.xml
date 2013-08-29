@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.ess3</groupId>
-    <artifactId>bugtracker</artifactId>
+    <artifactId>support</artifactId>
     <version>dev-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Essentials Bug Tracker</name>
-    <url>https://essentials3.atlassian.net/</url>
+    <url>http://support.ess3.net/</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,24 +25,31 @@
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-rest-java-client</artifactId>
-            <version>1.1-m02</version>
+            <version>2.0.0-m2</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.2.3</version>
+            <version>2.2.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>jasper</artifactId>
-            <version>6.0.36</version>
+            <version>6.0.37</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>servlet-api</artifactId>
+                    <groupId>org.apache.tomcat</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>9.0.2.v20130417</version>
+            <version>9.0.5.v20130815</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

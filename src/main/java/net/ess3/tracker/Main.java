@@ -4,25 +4,19 @@ import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.auth.AnonymousAuthenticationHandler;
 import com.atlassian.jira.rest.client.domain.BasicIssue;
 import com.atlassian.jira.rest.client.domain.Issue;
-import com.atlassian.jira.rest.client.domain.IssueFieldId;
-import com.atlassian.jira.rest.client.domain.input.ComplexIssueInputFieldValue;
-import com.atlassian.jira.rest.client.domain.input.FieldInput;
 import com.atlassian.jira.rest.client.domain.input.IssueInput;
-import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClient;
+import com.atlassian.jira.rest.client.domain.input.IssueInputBuilder;
+import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
+import com.atlassian.util.concurrent.Promise;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -34,9 +28,6 @@ public class Main extends HttpServlet {
 
     private static final String url = "https://essentials3.atlassian.net/";
     private static final JiraRestClient client;
-    private static final ComplexIssueInputFieldValue project = new ComplexIssueInputFieldValue((Map) Collections.singletonMap("key", "ESS"));
-    private static final ComplexIssueInputFieldValue type = new ComplexIssueInputFieldValue((Map) Collections.singletonMap("name", "Story"));
-    private static final ExecutorService pool = Executors.newCachedThreadPool();
     private static final Comparator<Issue> comp = new Comparator<Issue>() {
         @Override
         public int compare(Issue o1, Issue o2) {
@@ -47,53 +38,38 @@ public class Main extends HttpServlet {
 
     static {
         try {
-            client = new JerseyJiraRestClient(new URI(url), new AnonymousAuthenticationHandler());
+            client = new AsynchronousJiraRestClientFactory().create(new URI(url), new AnonymousAuthenticationHandler());
         } catch (Exception ex) {
             throw new ExceptionInInitializerError(ex);
         }
     }
 
-    public static Collection<Issue> getIssues(String state, int page, List<BasicIssue> myIssues) {
+    public static Collection<Issue> getIssues(String state, int page, List<BasicIssue> myIssues) throws Exception {
         // init return array
         final Set<Issue> ret = new TreeSet<>(comp);
         // make a query
         String query = state == null ? "" : "status = " + state;
         // do the query
-        List<BasicIssue> issues;
+        Iterable<BasicIssue> issues;
         // if they are reserved issues
         if ("mine".equals(state)) {
             issues = myIssues;
         } else {
             // search for them
-            issues = (List) client.getSearchClient().searchJql(query, 20, page * 20 - 20, null).getIssues();
+            issues = client.getSearchClient().searchJql(query, 20, page * 20 - 20).get().getIssues();
         }
         // null check
-        if (issues != null && !issues.isEmpty()) {
-            // store count
-            final int count = issues.size();
-            final CountDownLatch done = new CountDownLatch(count);
+        if (issues != null) {
             // loop through them
-            for (final BasicIssue basic : issues) {
-                // start a new service
-                pool.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            ret.add(client.getIssueClient().getIssue(basic.getKey(), null));
-                            done.countDown();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                });
+            List<Promise<Issue>> promises = new ArrayList<>();
+            for (BasicIssue basic : issues) {
+                promises.add(client.getIssueClient().getIssue(basic.getKey()));
             }
-
-            try {
-                done.await();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
+            for (Promise<Issue> p : promises) {
+                ret.add(p.claim());
             }
         }
+
         // return
         return ret;
     }
@@ -106,14 +82,13 @@ public class Main extends HttpServlet {
         String essVersion = req.getParameter("ess-version");
         String description = req.getParameter("description");
         // construct the issue
-        FieldInput projectF = new FieldInput(IssueFieldId.PROJECT_FIELD, project);
-        FieldInput typeF = new FieldInput(IssueFieldId.ISSUE_TYPE_FIELD, type);
-        FieldInput summaryF = new FieldInput(IssueFieldId.SUMMARY_FIELD, summary);
-        FieldInput descriptionF = new FieldInput(IssueFieldId.DESCRIPTION_FIELD, description);
-        FieldInput environmentF = new FieldInput("environment", "Essentials: " + essVersion + " CraftBukkit: " + cbVersion);
-        IssueInput issue = IssueInput.createWithFields(projectF, typeF, summaryF, descriptionF, environmentF);
+        IssueInput issue = new IssueInputBuilder("ESS", 1L)
+                .setSummary(summary)
+                .setDescription(description)
+                .setFieldValue("environment", "Essentials: " + essVersion + " CraftBukkit: " + cbVersion)
+                .build();
         // submit it
-        BasicIssue created = client.getIssueClient().createIssue(issue, null);
+        BasicIssue created = client.getIssueClient().createIssue(issue).claim();
         // plain text
         resp.setContentType("text/plain");
         // write url
