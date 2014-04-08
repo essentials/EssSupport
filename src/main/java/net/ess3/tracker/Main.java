@@ -35,7 +35,8 @@ public class Main extends HttpServlet {
 
     static {
         try {
-            client = new AsynchronousJiraRestClientFactory().create(new URI(url), new AnonymousAuthenticationHandler());
+            client = new AsynchronousJiraRestClientFactory().createWithBasicHttpAuthentication(new URI(url), "support", "support")
+            //client = new AsynchronousJiraRestClientFactory().create(new URI(url), new AnonymousAuthenticationHandler());
         } catch (Exception ex) {
             throw new ExceptionInInitializerError(ex);
         }
