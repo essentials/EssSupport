@@ -2,6 +2,7 @@ package net.ess3.tracker;
 
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.auth.AnonymousAuthenticationHandler;
+import com.atlassian.jira.rest.client.auth.BasicHttpAuthenticationHandler;
 import com.atlassian.jira.rest.client.domain.BasicIssue;
 import com.atlassian.jira.rest.client.domain.Issue;
 import com.atlassian.jira.rest.client.domain.IssueFieldId;
@@ -47,7 +48,7 @@ public class Main extends HttpServlet {
 
     static {
         try {
-            client = new JerseyJiraRestClient(new URI(url), new AnonymousAuthenticationHandler());
+            client = new JerseyJiraRestClient(new URI(url), new BasicHttpAuthenticationHandler("support", "support"));
         } catch (Exception ex) {
             throw new ExceptionInInitializerError(ex);
         }
